@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef } from 'react';
 
 interface VideoItem {
@@ -104,22 +106,13 @@ const VideoHighlights: React.FC = () => {
   };
 
   return (
-    <section className="py-16 bg-gray-900 text-white">
+    <section className="py-10 bg-gray-900 text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Video Highlights
-          </h2>
-          <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            Watch our latest video work and see the stories we've captured
-          </p>
-        </div>
-
         <div className="relative">
           {/* Scroll Container */}
           <div
             ref={scrollContainerRef}
-            className="flex space-x-6 overflow-x-hidden scrollbar-hide"
+            className="flex overflow-x-hidden scrollbar-hide"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
@@ -129,7 +122,7 @@ const VideoHighlights: React.FC = () => {
             {[...videos, ...videos].map((video, index) => (
               <div
                 key={`${video.id}-${index}`}
-                className="flex-shrink-0 w-80 cursor-pointer group"
+                className="flex-shrink-0 w-1/3 cursor-pointer group"
                 onClick={() => handleVideoClick(video.vimeoId)}
               >
                 <div className="relative bg-gray-800 rounded-lg overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
@@ -168,13 +161,6 @@ const VideoHighlights: React.FC = () => {
                       </div>
                     </div>
                   </div>
-
-                  {/* Video Title */}
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-white group-hover:text-blue-400 transition-colors duration-300">
-                      {video.title}
-                    </h3>
-                  </div>
                 </div>
               </div>
             ))}
@@ -183,13 +169,6 @@ const VideoHighlights: React.FC = () => {
           {/* Gradient Overlays for smooth edges */}
           <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-900 to-transparent pointer-events-none"></div>
           <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-900 to-transparent pointer-events-none"></div>
-        </div>
-
-        {/* View All Videos Button */}
-        <div className="text-center mt-12">
-          <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
-            View All Videos
-          </button>
         </div>
       </div>
 
@@ -203,3 +182,4 @@ const VideoHighlights: React.FC = () => {
 };
 
 export default VideoHighlights;
+
