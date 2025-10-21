@@ -8,7 +8,7 @@ import Testimonials from '@/home/components/Testimonials';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white">
       <Hero />
       <About />
       <Portfolio />
