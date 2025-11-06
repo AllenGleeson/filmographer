@@ -1,62 +1,12 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-
-interface VideoItem {
-  id: string;
-  title: string;
-  vimeoId: string;
-  thumbnail: string;
-  duration?: string;
-}
+import { useVimeoPlayer } from '@/hooks/useVimeoPlayer';
 
 const VideoHighlights: React.FC = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  const videos: VideoItem[] = [
-    {
-      id: '1',
-      title: 'Wedding Highlights',
-      vimeoId: '123456789',
-      thumbnail: '/api/placeholder/300/200',
-      duration: '2:30'
-    },
-    {
-      id: '2',
-      title: 'Corporate Event',
-      vimeoId: '987654321',
-      thumbnail: '/api/placeholder/300/200',
-      duration: '1:45'
-    },
-    {
-      id: '3',
-      title: 'Portrait Session',
-      vimeoId: '456789123',
-      thumbnail: '/api/placeholder/300/200',
-      duration: '3:15'
-    },
-    {
-      id: '4',
-      title: 'Product Showcase',
-      vimeoId: '789123456',
-      thumbnail: '/api/placeholder/300/200',
-      duration: '2:00'
-    },
-    {
-      id: '5',
-      title: 'Event Coverage',
-      vimeoId: '321654987',
-      thumbnail: '/api/placeholder/300/200',
-      duration: '4:20'
-    },
-    {
-      id: '6',
-      title: 'Behind the Scenes',
-      vimeoId: '654987321',
-      thumbnail: '/api/placeholder/300/200',
-      duration: '1:30'
-    }
-  ];
+  const heroVideoId = 922651989;
+  const videoCount = 6; // Number of videos to display
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -64,14 +14,20 @@ const VideoHighlights: React.FC = () => {
 
     let animationId: number;
     let scrollPosition = 0;
-    const scrollSpeed = 0.5; // pixels per frame
+    const scrollSpeed = 0.3; // pixels per frame - slower for smoother effect
 
     const scroll = () => {
       scrollPosition += scrollSpeed;
-      scrollContainer.scrollLeft = scrollPosition;
+      
+      // Use transform instead of scrollLeft to avoid interfering with page scroll
+      scrollContainer.style.transform = `translateX(-${scrollPosition}px)`;
 
-      // Reset scroll position when it reaches the end
-      if (scrollPosition >= scrollContainer.scrollWidth - scrollContainer.clientWidth) {
+      // Calculate reset point: each video is 50% width, so reset after scrolling through videoCount videos
+      const containerWidth = scrollContainer.clientWidth;
+      const videoWidth = containerWidth / 2; // Each video is w-1/2
+      const resetPoint = videoWidth * videoCount; // Reset after scrolling through first set of videos
+
+      if (scrollPosition >= resetPoint) {
         scrollPosition = 0;
       }
 
@@ -81,96 +37,39 @@ const VideoHighlights: React.FC = () => {
     // Start scrolling
     animationId = requestAnimationFrame(scroll);
 
-    // Pause on hover
-    const handleMouseEnter = () => {
-      cancelAnimationFrame(animationId);
-    };
-
-    const handleMouseLeave = () => {
-      animationId = requestAnimationFrame(scroll);
-    };
-
-    scrollContainer.addEventListener('mouseenter', handleMouseEnter);
-    scrollContainer.addEventListener('mouseleave', handleMouseLeave);
-
     return () => {
       cancelAnimationFrame(animationId);
-      scrollContainer.removeEventListener('mouseenter', handleMouseEnter);
-      scrollContainer.removeEventListener('mouseleave', handleMouseLeave);
     };
   }, []);
 
-  const handleVideoClick = (vimeoId: string) => {
-    // Open Vimeo video in a new tab or modal
-    window.open(`https://vimeo.com/${vimeoId}`, '_blank');
-  };
-
   return (
-    <section className="py-10 bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative">
-          {/* Scroll Container */}
-          <div
-            ref={scrollContainerRef}
-            className="flex overflow-x-hidden scrollbar-hide"
-            style={{
-              scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-            }}
-          >
-            {/* Duplicate videos for seamless loop */}
-            {[...videos, ...videos].map((video, index) => (
-              <div
-                key={`${video.id}-${index}`}
-                className="flex-shrink-0 w-1/3 cursor-pointer group"
-                onClick={() => handleVideoClick(video.vimeoId)}
-              >
-                <div className="relative bg-gray-800 rounded-lg overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
-                  {/* Video Thumbnail */}
-                  <div className="relative aspect-video bg-gray-700">
-                    <img
-                      src={video.thumbnail}
-                      alt={video.title}
-                      className="w-full h-full object-cover"
-                    />
-                    
-                    {/* Play Button Overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 group-hover:bg-opacity-50 transition-all duration-300">
-                      <div className="w-16 h-16 bg-white bg-opacity-90 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                        <svg
-                          className="w-6 h-6 text-gray-900 ml-1"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      </div>
-                    </div>
-
-                    {/* Duration Badge */}
-                    {video.duration && (
-                      <div className="absolute top-3 right-3 bg-black bg-opacity-75 text-white text-sm px-2 py-1 rounded">
-                        {video.duration}
-                      </div>
-                    )}
-
-                    {/* Vimeo Logo */}
-                    <div className="absolute bottom-3 left-3">
-                      <div className="bg-white bg-opacity-90 rounded px-2 py-1">
-                        <span className="text-xs font-semibold text-gray-900">Vimeo</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Gradient Overlays for smooth edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-gray-900 to-transparent pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-900 to-transparent pointer-events-none"></div>
-        </div>
+    <section className="relative h-[50vh] w-full overflow-hidden bg-gray-900">
+      {/* Scroll Container */}
+      <div
+        ref={scrollContainerRef}
+        className="flex h-full overflow-x-hidden scrollbar-hide pointer-events-none"
+        style={{
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          willChange: 'transform',
+        }}
+      >
+        {/* Duplicate videos for seamless loop */}
+        {Array.from({ length: videoCount * 2 }).map((_, index) => (
+          <VideoPlayer
+            key={`video-${index}`}
+            videoId={heroVideoId}
+            index={index}
+          />
+        ))}
       </div>
+
+      {/* Gradient Overlays for smooth edges */}
+      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-gray-900 via-gray-900/80 to-transparent pointer-events-none z-10"></div>
+      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-gray-900 via-gray-900/80 to-transparent pointer-events-none z-10"></div>
+
+      {/* Overlay with opacity for better visual effect */}
+      <div className="absolute inset-0 bg-black/20 pointer-events-none z-5"></div>
 
       <style jsx>{`
         .scrollbar-hide::-webkit-scrollbar {
@@ -178,6 +77,49 @@ const VideoHighlights: React.FC = () => {
         }
       `}</style>
     </section>
+  );
+};
+
+// Individual Video Player Component
+const VideoPlayer: React.FC<{ videoId: number; index: number }> = ({ videoId, index }) => {
+  const { playerRef, isLoaded, error } = useVimeoPlayer({
+    id: videoId,
+    autoplay: true,
+    muted: true,
+    loop: true,
+    controls: false,
+    background: true,
+    responsive: true,
+  });
+
+  return (
+    <div className="flex-shrink-0 w-1/2 h-full relative">
+      {/* Vimeo Video Background */}
+      <div className="absolute inset-0 w-full h-full">
+        <div 
+          ref={playerRef}
+          className="w-full h-full"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            minWidth: '100%',
+            minHeight: '100%',
+            width: 'auto',
+            height: 'auto',
+          }}
+        />
+        
+        {/* Fallback gradient background */}
+        {(!isLoaded || error) && (
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"></div>
+        )}
+      </div>
+      
+      {/* Subtle overlay for each video */}
+      <div className="absolute inset-0 bg-black/30"></div>
+    </div>
   );
 };
 
